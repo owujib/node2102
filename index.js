@@ -1,64 +1,72 @@
-// import http module
-const http = require('http');
-const { person, students } = require('./data');
+//import
+const express = require('express');
 const path = require('path');
-const readFileToServer = require('./test');
+const mongoose = require('mongoose');
+const methodOverride = require('method-override');
+//file import
+const { person, students } = require('./data');
 
-/**
- * this createserver method carries 2 parameters,
- * 1.) the request object
- * 2.) the response object
- */
-const server = http.createServer((req, res) => {
-  switch (req.url) {
-    case '/':
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      const HomePage = path.join(__dirname, 'public/index.html');
-      const HomePagedata = readFileToServer(HomePage);
-      res.write(HomePagedata.file);
-      res.end();
-      break;
+//route imports
+const phoneRoutes = require('./routes/phones.routes');
+const homeRoutes = require('./routes/home.routes');
+const productRoutes = require('./routes/products.routes');
 
-    case '/about':
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      const aboutPage = path.join(__dirname, 'public/about.html');
-      const aboutPagedata = readFileToServer(aboutPage);
-      res.write(aboutPagedata.file);
-      res.end();
-      break;
+//initialize express
+const app = express();
 
-    case '/contact':
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      const contactPage = path.join(__dirname, 'public/contact.html');
-      const contactPagedata = readFileToServer(contactPage);
-      res.write(contactPagedata.file);
-      res.end();
-      break;
+//set view engine
+app.set('view engine', 'ejs');
 
-    case '/api/students':
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.write(JSON.stringify(students));
-      res.end();
-      break;
+//set views directory
+app.set('views', path.join(__dirname, 'views'));
 
-    case '/api/person':
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.write(JSON.stringify(students));
-      res.end();
-      break;
+//seting up request middleware
+//NOTE: this is used for sending data from the frontend to the server
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-    default:
-      res.writeHead(404, { 'Content-Type': 'text/html' });
-      res.write('<h1>Page not found</h1>');
-      res.end();
-      break;
-  }
+//set static dir
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(methodOverride('_method'));
+//globals
+app.use((req, res, next) => {
+  req.server_url = 'http://localhost:5000/';
+  next();
 });
 
-const PORT = 5500;
+//home routes
+app.use('/', homeRoutes);
 
-server.listen(PORT, () => {
+//phones route
+app.use('/phones', phoneRoutes);
+
+//product routes
+app.use('/product', productRoutes);
+
+//api routes
+app.get('/api/students', (req, res, next) => {
+  res.status(200).json({
+    status: 'success',
+    message: students,
+  });
+});
+
+const PORT = process.env.PORT || 5000;
+
+mongoose
+  .connect('mongodb://localhost:27017/eShop', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log('database connected successfully');
+  })
+  .catch((err) => console.log('ERROR: ', err));
+
+//listen to port
+app.listen(PORT, () => {
   console.log(
-    `server is running on http://localhost:${PORT} \nreload server to see new file changes `
+    `server is runing on http://127.0.0.1:${PORT}\nor http://localhost:${PORT}`
   );
 });
