@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
 
 const productRoutes = require('./routes/product.routes');
 const categoryRoutes = require('./routes/category.routes');
@@ -10,6 +11,8 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/product', productRoutes);
 app.use('/api/category', categoryRoutes);

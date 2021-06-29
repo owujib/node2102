@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post('/create', create);
 router.get('/', getAllCategory);
-router.get('/:catId', getCategoryProduct);
+router.get('/products', getCategoryProduct);
 
 //TODO: complete the crud methods
 
