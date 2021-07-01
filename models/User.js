@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const Userschema = new mongoose.Schema(
   {
@@ -32,7 +33,19 @@ const Userschema = new mongoose.Schema(
   }
 );
 
-const User = mongoose.model('User', userSchema);
+//database middleware
+Userschema.pre('save', async function () {
+  this.password = await bcrypt.hash(this.password, 10);
+});
+
+//creating a database method
+Userschema.methods.correctPassword = async function (
+  inputPassword,
+  userPassword
+) {
+  return bcrypt.compare(inputPassword, userPassword);
+};
+
+const User = mongoose.model('User', Userschema);
 
 module.exports = User;
-//TODO: create user route e.g register

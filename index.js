@@ -4,6 +4,7 @@ const path = require('path');
 
 const productRoutes = require('./routes/product.routes');
 const categoryRoutes = require('./routes/category.routes');
+const userRoutes = require('./routes/user.routes');
 
 const ApiError = require('./utils/apiError');
 
@@ -16,6 +17,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/product', productRoutes);
 app.use('/api/category', categoryRoutes);
+app.use('/api/user', userRoutes);
 
 //catching 404 on get method
 //BUG: document your apiErrror class
@@ -39,6 +41,7 @@ mongoose
   .connect('mongodb://localhost:27017/eShop', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useCreateIndex: true,
   })
   .then(() => {
     console.log('database connection is successfull');
