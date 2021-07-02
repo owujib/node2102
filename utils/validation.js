@@ -1,5 +1,7 @@
 const JOI = require('joi');
 
+//TODO: create validation for all you post and patch methods for example createProduct , updateProduct, login, updatePassword
+//TODO: Basically any routes that takes information from the user should have it's own validation
 exports.registerValidation = (data) => {
   const schema = JOI.object({
     name: JOI.string().required().min(2).max(20),

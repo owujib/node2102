@@ -4,7 +4,7 @@ const User = require('../models/User');
 const ApiError = require('../utils/apiError');
 const { registerValidation } = require('../utils/validation');
 
-//TODO: document function
+//TODO: document all our functions
 const signToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '3d' });
 };
@@ -104,11 +104,16 @@ exports.Authorization = async (req, res, next) => {
   }
 };
 
+/**
+ *
+ * @param  {...any} roles
+ * @returns
+ * @description restricts any role passed in to the roles middleware
+ */
 exports.roles = (...roles) => {
-  console.log(roles);
   return (req, res, next) => {
-    if (!roles.includes(req.user.roles)) {
-      return next(new ApiError('unauthorized access', 401));
+    if (roles.includes(req.user.roles)) {
+      return next(new ApiError('forbidden', 403));
     }
     return next();
   };

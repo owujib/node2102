@@ -52,9 +52,16 @@ exports.createProduct = (req, res, next) => {
 exports.getAllProduct = async (req, res, next) => {
   try {
     const product = await Product.find();
+
+    //check if product is empty
+    if (product.length === 0) {
+      return next(new ApiError('no products yet', 404));
+    }
+
     res.status(200).json({
       status: 'success',
       data: product,
+      length: product.length,
     });
   } catch (error) {
     next(error);
@@ -64,7 +71,11 @@ exports.getAllProduct = async (req, res, next) => {
 exports.getProductById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const product = await Product.findById({ _id: id });
+    const product = await Product.findById({ _id: id }).populate({
+      path: 'category',
+      select: 'title id',
+      exclude: 'updatedAt createdAt _id',
+    });
 
     res.status(200).json({
       status: 'success',
